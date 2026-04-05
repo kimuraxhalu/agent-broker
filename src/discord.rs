@@ -21,11 +21,12 @@ pub struct Handler {
 #[async_trait]
 impl EventHandler for Handler {
     async fn message(&self, ctx: Context, msg: Message) {
-        if msg.author.bot {
+        let bot_id = ctx.cache.current_user().id;
+
+        // Ignore own messages (prevent loops), allow other bots
+        if msg.author.id == bot_id {
             return;
         }
-
-        let bot_id = ctx.cache.current_user().id;
 
         let channel_id = msg.channel_id.get();
         let in_allowed_channel =
