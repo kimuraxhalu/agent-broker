@@ -80,6 +80,13 @@ impl EventHandler for Handler {
         if !in_thread && !is_mentioned {
             return;
         }
+        // In thread: skip if message explicitly mentions another bot but not us
+        if in_thread && !is_mentioned {
+            let mentions_other_bot = msg.mentions.iter().any(|u| u.bot && u.id != bot_id);
+            if mentions_other_bot {
+                return;
+            }
+        }
 
         if !self.allowed_users.is_empty() && !self.allowed_users.contains(&msg.author.id.get()) {
             tracing::info!(user_id = %msg.author.id, "denied user, ignoring");
