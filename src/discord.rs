@@ -50,7 +50,7 @@ impl EventHandler for Handler {
 
         let is_mentioned = msg.mentions_user_id(bot_id)
             || msg.content.contains(&format!("<@{}>", bot_id))
-            || msg.mention_roles.iter().any(|r| msg.content.contains(&format!("<@&{}>", r)));
+            ;
 
         let in_thread = if !in_allowed_channel {
             match msg.channel_id.to_channel(&ctx.http).await {
