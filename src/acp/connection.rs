@@ -313,6 +313,21 @@ impl AcpConnection {
         self.last_active = Instant::now();
     }
 
+
+    /// Save session ID to disk for persistence across restarts
+    pub fn save_session(&self, thread_id: &str) {
+        if let Some(ref sid) = self.acp_session_id {
+            let dir = std::path::Path::new("/home/ubuntu/.openab-sessions");
+            let _ = std::fs::create_dir_all(dir);
+            let _ = std::fs::write(dir.join(thread_id), sid);
+        }
+    }
+
+    /// Load saved session ID
+    pub fn load_session_id(thread_id: &str) -> Option<String> {
+        let path = std::path::Path::new("/home/ubuntu/.openab-sessions").join(thread_id);
+        std::fs::read_to_string(path).ok()
+    }
     pub fn alive(&self) -> bool {
         !self._reader_handle.is_finished()
     }

@@ -64,6 +64,7 @@ impl SessionPool {
             conn.session_reset = true;
         }
 
+        conn.save_session(thread_id);
         conns.insert(thread_id.to_string(), conn);
         Ok(())
     }
