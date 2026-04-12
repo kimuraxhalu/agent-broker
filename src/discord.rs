@@ -38,7 +38,7 @@ pub struct Handler {
 #[async_trait]
 impl EventHandler for Handler {
     async fn message(&self, ctx: Context, msg: Message) {
-        if msg.author.bot {
+        if msg.author.bot && !self.allowed_users.contains(&msg.author.id.get()) {
             return;
         }
 
@@ -50,7 +50,7 @@ impl EventHandler for Handler {
 
         let is_mentioned = msg.mentions_user_id(bot_id)
             || msg.content.contains(&format!("<@{}>", bot_id))
-            || msg.mention_roles.iter().any(|r| msg.content.contains(&format!("<@&{}>", r)));
+            ;
 
         let in_thread = if !in_allowed_channel {
             match msg.channel_id.to_channel(&ctx.http).await {
@@ -79,6 +79,13 @@ impl EventHandler for Handler {
         }
         if !in_thread && !is_mentioned {
             return;
+        }
+        // In thread: skip if message mentions another bot but not us
+        if in_thread && !is_mentioned {
+            let mentions_other_bot = msg.mentions.iter().any(|u| u.bot && u.id != bot_id);
+            if mentions_other_bot {
+                return;
+            }
         }
 
         if !self.allowed_users.is_empty() && !self.allowed_users.contains(&msg.author.id.get()) {
