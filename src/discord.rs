@@ -38,7 +38,7 @@ pub struct Handler {
 #[async_trait]
 impl EventHandler for Handler {
     async fn message(&self, ctx: Context, msg: Message) {
-        if msg.author.bot {
+        if msg.author.bot && !self.allowed_users.contains(&msg.author.id.get()) {
             return;
         }
 
